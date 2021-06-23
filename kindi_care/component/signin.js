@@ -1,5 +1,6 @@
 import React, {Component, useState} from "react"
-import {Text, TextInput, View, StyleSheet, Dimensions, CheckBox, TouchableOpacity, Button, Image}  from "react-native"
+import {Text, TextInput, View, StyleSheet, Dimensions, TouchableOpacity, Button, Image}  from "react-native"
+import CheckBox from '@react-native-community/checkbox'
 import logo from "../logo/logo.png"
 import facebook from "../logo/facebook.png"
 // import axios from 'axios'
@@ -10,19 +11,40 @@ import apple from '../logo/apple.png'
 // const [text, onChangeTest] = React.useState("");
 const {width: WIDTH} = Dimensions.get('window');
 // const [checked, setChecked] = useState(false);
+import authApi from '../api/authApi';
+import axiosClient from "../api/axiosClient";
 const signin = ({navigation})=>{
     // const [text, onChangeTest] = useState("");
     // const [checked, setChecked] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    
+    const [isSelected, setSelection] = useState(false);
     // function handleEmailInput(event) {
     //     setEmail(event.target.value)
     // }
     // function handlePasswordInput(event) {
     //     setPassword(event.target.value)
     // }
+    async function logIn () {
+        console.log('alo');
+        await authApi.logIn({
+            email,
+            password
+        }, loginSuccess, loginFailded);
+        console.log(email), 
+        console.log(password)
+    }
 
+    const loginSuccess = (reponse) =>{
+        const token = reponse.token
+        axiosClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        console.log(reponse.data)
+    }
+    const loginFailded = (err) =>{
+        console.log(err.message);
+        console.log(email), 
+        console.log(password)
+    }
     return(
         <View style={{backgroundColor: 'white'}}>
             <View>
@@ -41,33 +63,39 @@ const signin = ({navigation})=>{
                 value={email}
                 ></TextInput>
             </View>
-            <View style = {styles.inpurPass}>
+            <View style = {styles.inputPass}>
                 <Text style={styles.textPass}>Password</Text>
                 <TextInput
                 style={styles.textInputPass}
                 underlineColorAndroid="transparent"
                 secureTextEntry={true}
-                onChangeText={setPassword}
+                onChangeText={setPassword}      
                 value={password}
                 ></TextInput>
              </View>
-             {/* <View>
+             <View>
                 <CheckBox
-                value={checked}
-                onChange={setChecked}></CheckBox> 
-            </View>  */}
+                style={{paddingTop:30}}
+                value={isSelected}
+                onValueChange={setSelection}
+                tintColors={{ true: '#FD4659', false: '#D2D1D1' }}></CheckBox> 
+            </View> 
             <View style={styles.buttonLogin}>
                 <TouchableOpacity 
                 onPress={()=>{
-                    axios.post('https://kindicare-api-staging.enouvo.com/api/v1/client/auth/login',{
-                        email,
-                        password
-                    }).then(reponse=>{
-                        console.log(reponse.data);
+                    // axios.post('https://kindicare-api-staging.enouvo.com/api/v1/client/auth/login',{
+                    //     email,
+                    //     password
+                    // }).then(reponse=>{
+                    //     console.log(reponse.data);
+                    //     navigation.navigate('HomeScreen')
+
                         
-                    }).catch(error=>{
-                        console.log(error);
-                    })
+                    // }).catch(error=>{
+                    //     console.log(error);
+                    // }
+                    // )
+                    {logIn()}
                 }}>
                     <Text style={styles.textLogin}>Login</Text>
                 </TouchableOpacity>
